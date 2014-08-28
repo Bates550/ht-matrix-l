@@ -23,7 +23,8 @@ for (var i=0; i < numCols; ++i) {
 function Wordfall(col) {
 	this.col = document.getElementById("col"+col);
 	this.row = this.col.firstChild;
-	this.length = 10;
+	this.length = 0;
+	this.maxLength = 10;
 
 	this.row.classList.add('lighter-green');
 }
@@ -31,7 +32,45 @@ function Wordfall(col) {
 Wordfall.prototype.advance = function() {
 	var row = this.row;
 	var length = this.length;
-	while (row !== null) {
+	/*if (length === 0) {
+		row.classList.add('lighter-green');
+	}
+	else {*/
+	if (length !== 0) {
+		for (var i = 0; i < length; ++i) {
+			if (i === 0) { // head of wordfall
+				if (row.nextSibling !== null) { 			// If we have not reached the bottom
+					this.row = row.nextSibling; 			// Set the div below the current as the head
+					this.row.classList.add('lighter-green');
+				}
+				else {										// Else row is at bottom of screen and is removed.
+
+				}
+				row.classList.remove('lighter-green');
+				row.classList.add('light-green');
+				//console.log(row);
+			}
+			else if (i === 1) { // neck of wordfall (neighbor of head)
+				row.classList.remove('light-green');
+				row.classList.add('green');
+			}
+			else if (i === length-1) { // last tail of wordfall
+				row.classList.remove('green');
+				//wordfalls.splice(wordfalls.indexOf(this), 1);
+				//console.log("End of wordfall.", row);
+			}
+			if (row.previousSibling !== null) {
+				row = row.previousSibling
+				//console.log('Row decremented.', i, length, row);
+			}
+		}
+	}
+	if (length < this.maxLength) {
+		++this.length;
+		//console.log("Length incremented.");
+	}
+	//console.log(this.row, this.length);
+	/*while (row !== null) {
 		var cl = row.classList;
 		if (cl.contains('green') && length === 1) {
 			cl.remove('green');
@@ -53,14 +92,7 @@ Wordfall.prototype.advance = function() {
 		}
 		row = row.previousSibling;
 		--length;
-	}
-
-}
-
-Array.prototype.advance = function() {
-	for (var i = 0; i < this.length; ++i) {
-		this[i].advance();
-	}
+	}*/
 }
 
 function run() {
@@ -71,9 +103,11 @@ function run() {
 		wordfalls.push(wordfall);
 	}
 
-	wordfalls.forEach(function(wordfall) {
+	wordfalls.forEach(function(wordfall, index) {
+		//console.log("Advancing wordfalls["+index+"].");
 		wordfall.advance();
 	});
 }
 
 setInterval(run, 100);
+//run();
