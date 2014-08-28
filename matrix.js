@@ -25,6 +25,7 @@ function Wordfall(col) {
 	this.row = this.col.firstChild;
 	this.length = 0;
 	this.maxLength = 10;
+	this.shrinking = false;
 
 	this.row.classList.add('lighter-green');
 }
@@ -39,12 +40,14 @@ Wordfall.prototype.advance = function() {
 	if (length !== 0) {
 		for (var i = 0; i < length; ++i) {
 			if (i === 0) { // head of wordfall
-				if (row.nextSibling !== null) { 			// If we have not reached the bottom
+				if (row.nextSibling === null) { 			// If row is at bottom of screen and is removed.
+					this.row.classList.remove('lighter-green');
+					--this.length;
+					this.shrinking = true;
+				}
+				else {										// Else we have not reached the bottom.
 					this.row = row.nextSibling; 			// Set the div below the current as the head
 					this.row.classList.add('lighter-green');
-				}
-				else {										// Else row is at bottom of screen and is removed.
-
 				}
 				row.classList.remove('lighter-green');
 				row.classList.add('light-green');
@@ -65,34 +68,11 @@ Wordfall.prototype.advance = function() {
 			}
 		}
 	}
-	if (length < this.maxLength) {
+	if (length < this.maxLength && !this.shrinking) {
 		++this.length;
 		//console.log("Length incremented.");
 	}
 	//console.log(this.row, this.length);
-	/*while (row !== null) {
-		var cl = row.classList;
-		if (cl.contains('green') && length === 1) {
-			cl.remove('green');
-		}
-		else if (cl.contains('light-green')) {
-			cl.remove('light-green');
-			cl.add('green');
-		}
-		else if (cl.contains('lighter-green')) {
-			cl.remove('lighter-green');
-			cl.add('light-green');
-			if (row.nextSibling !== null) {
-				this.row = row.nextSibling;
-				this.row.classList.add('lighter-green');
-			}
-			else {
-				--this.length;
-			}
-		}
-		row = row.previousSibling;
-		--length;
-	}*/
 }
 
 function run() {
