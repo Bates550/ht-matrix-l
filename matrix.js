@@ -6,7 +6,9 @@ var height = document.documentElement.clientHeight, //window.innerHeight,
 	rowWidth = colWidth,
 	numCols = Math.floor(width/colWidth),
 	numRows = Math.floor(height/rowWidth)-10,
-	wordfalls = new Array();
+	wordfalls = new Array(),
+	busyCols = new Array(),
+	busyTimes = new Array();
 
 
 for (var i=0; i < numCols; ++i) {
@@ -22,72 +24,158 @@ for (var i=0; i < numCols; ++i) {
 /* Like a waterfall, but with words */
 function Wordfall(col) {
 	this.col = document.getElementById("col"+col);
-	this.row = this.col.firstChild;
-	this.length = 0;
-	this.maxLength = 10;
+	this.head = this.col.firstChild;
+	this.tail = this.head;
+	this.length = 1;
+	this.maxLength = 5;
 	this.shrinking = false;
 
-	this.row.classList.add('lighter-green');
+	this.head.classList.add('lighter-green');
+	//console.log("Wordfall of length "+this.length+" created.");
 }
 
 Wordfall.prototype.advance = function() {
-	var row = this.row;
-	var length = this.length;
-	/*if (length === 0) {
-		row.classList.add('lighter-green');
-	}
-	else {*/
-	if (length !== 0) {
-		for (var i = 0; i < length; ++i) {
-			if (i === 0) { // head of wordfall
-				if (row.nextSibling === null) { 			// If row is at bottom of screen and is removed.
-					this.row.classList.remove('lighter-green');
-					--this.length;
-					this.shrinking = true;
-				}
-				else {										// Else we have not reached the bottom.
-					this.row = row.nextSibling; 			// Set the div below the current as the head
-					this.row.classList.add('lighter-green');
-				}
-				row.classList.remove('lighter-green');
-				row.classList.add('light-green');
-				//console.log(row);
-			}
-			else if (i === 1) { // neck of wordfall (neighbor of head)
-				row.classList.remove('light-green');
-				row.classList.add('green');
-			}
-			else if (i === length-1) { // last tail of wordfall
-				row.classList.remove('green');
-				//wordfalls.splice(wordfalls.indexOf(this), 1);
-				//console.log("End of wordfall.", row);
-			}
-			if (row.previousSibling !== null) {
-				row = row.previousSibling
-				//console.log('Row decremented.', i, length, row);
-			}
+	if (this.length < this.maxLength) {
+		if (this.length === 1) {
+			//console.log("Adding one light green segment.");
+			this.addLightGreen();
+		}
+		else if (this.length === 2) {
+			//console.log("Adding one green segment.");
+			this.addGreen();
+		}
+		else {
+			//console.log("Growing longer.");
+			this.growLonger();
 		}
 	}
-	if (length < this.maxLength && !this.shrinking) {
-		++this.length;
-		//console.log("Length incremented.");
+	else if (this.head.nextSibling !== null) {
+		//console.log("Moving forward.");
+		this.moveForward();
 	}
-	//console.log(this.row, this.length);
+	else if (this.head.classList.contains('lighter-green')) {
+		//console.log("Removing one lighter green segment.");
+		this.removeLighterGreen();
+	}
+	else if (this.head.classList.contains('light-green')) {
+		//console.log("Removing one light green segment.");
+		this.removeLightGreen();
+	}
+	else if (this.head.classList.contains('green')) {
+		//console.log("Removing one green segment.");
+		this.removeGreen();
+	}
+}
+
+Wordfall.prototype.addLightGreen = function() {
+	this.head.classList.remove('lighter-green');
+	this.head.classList.add('light-green');
+	this.head = this.head.nextSibling;
+	this.head.classList.add('lighter-green');
+	++this.length;
+}
+
+Wordfall.prototype.addGreen = function() {
+	this.head.classList.remove('lighter-green');
+	this.head.classList.add('light-green');
+	this.tail = this.head.previousSibling;
+	this.tail.classList.remove('light-green');
+	this.tail.classList.add('green');
+	this.head = this.head.nextSibling;
+	this.head.classList.add('lighter-green');
+	++this.length;
+}
+
+Wordfall.prototype.growLonger = function() {
+	this.head.classList.remove('lighter-green');
+	this.head.classList.add('light-green');
+	for (var row = this.head.previousSibling; row !== null; row = row.previousSibling) {
+		if (!row.classList.contains('green')) {
+			row.classList.add('green');
+		}
+		if (row.previousSibling === null) {
+			this.tail = row;
+		}
+	}
+	this.head.previousSibling.classList.remove('light-green');
+	this.head.previousSibling.classList.add('green');
+	this.head = this.head.nextSibling;
+	this.head.classList.add('lighter-green');
+	if (this.length < this.maxLength) {
+		++this.length;
+	}
+}
+
+Wordfall.prototype.moveForward = function() {
+	this.head.classList.remove('lighter-green');
+	this.head.classList.add('light-green');
+	var neck = this.head.previousSibling;
+	if (neck.classList.contains('light-green')) {
+		neck.classList.remove('light-green');
+		neck.classList.add('green');
+	}
+	this.head = this.head.nextSibling;
+	this.head.classList.add('lighter-green');
+	this.tail.classList.remove('green');
+	this.tail = this.tail.nextSibling;
+}
+
+Wordfall.prototype.removeLighterGreen = function () {
+	this.head.classList.remove('lighter-green');
+	this.head.classList.add('light-green');
+	this.head.previousSibling.classList.remove('light-green');
+	this.head.previousSibling.classList.add('green');
+	this.tail.classList.remove('green');
+	this.tail = this.tail.nextSibling;
+}
+
+Wordfall.prototype.removeLightGreen = function () {
+	this.head.classList.remove('light-green');
+	this.head.classList.add('green');
+	this.tail.classList.remove('green');
+	this.tail = this.tail.nextSibling;
+}
+
+Wordfall.prototype.removeGreen = function() {
+	if (this.tail === null) {
+		clearInterval(intervalId);
+		console.log(this);
+	}
+	this.tail.classList.remove('green');
+	this.tail = this.tail.nextSibling;
+	if (this.tail === null) {
+		wordfalls.remove(this);
+	}
+}
+
+Array.prototype.remove = function(object) {
+	this.splice(this.indexOf(object), 1);
 }
 
 function run() {
+	var col = Math.floor(Math.random()*numCols), 
+		wordfall;
+
 	if (Math.random() > 0) {
-		var col = Math.floor(Math.random()*numCols);
-		//console.log(col);
-		var wordfall = new Wordfall(col);
+		while (busyCols.indexOf(col) !== -1) {
+			col = Math.floor(Math.random()*numCols)
+		}
+		wordfall = new Wordfall(col);
 		wordfalls.push(wordfall);
+		busyCols.push(col);
+		busyTimes.push(10);
 	}
 
 	wordfalls.forEach(function(wordfall, index) {
-		//console.log("Advancing wordfalls["+index+"].");
 		wordfall.advance();
+	});
+
+	busyTimes.forEach(function(time, index) {
+		if (--time === 0) {
+			busyCols.splice(index, 1);
+			busyTimes.splice(index, 1);
+		}
 	});
 }
 
-setInterval(run, 100);
-//run();
+var intervalId = setInterval(run, 100);
