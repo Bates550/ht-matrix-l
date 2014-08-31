@@ -27,7 +27,7 @@ function Wordfall(col) {
 	this.head = this.col.firstChild;
 	this.tail = this.head;
 	this.length = 1;
-	this.maxLength = 5;
+	this.maxLength = 10;
 	this.shrinking = false;
 
 	this.head.classList.add('lighter-green');
@@ -163,19 +163,26 @@ function run() {
 		wordfall = new Wordfall(col);
 		wordfalls.push(wordfall);
 		busyCols.push(col);
-		busyTimes.push(10);
+		busyTimes.push(wordfall.maxLength+1);
 	}
+	
 
 	wordfalls.forEach(function(wordfall, index) {
 		wordfall.advance();
 	});
 
 	busyTimes.forEach(function(time, index) {
-		if (--time === 0) {
+		if (--busyTimes[index] === 0) {
 			busyCols.splice(index, 1);
 			busyTimes.splice(index, 1);
 		}
 	});
+	console.log(busyTimes, busyCols);
 }
 
+/*var wordfall = new Wordfall(3);
+wordfalls.push(wordfall);
+busyCols.push(3);
+busyTimes.push(wordfall.maxLength+1);
+*/
 var intervalId = setInterval(run, 100);
