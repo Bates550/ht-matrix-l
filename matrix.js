@@ -2,10 +2,11 @@
 
 var height = document.documentElement.clientHeight, //window.innerHeight,
 	width = document.documentElement.clientWidth, //window.innerWidth,
+	container = document.body,
 	colWidth = 16,
 	rowWidth = colWidth,
 	numCols = Math.floor(width/colWidth),
-	numRows = Math.floor(height/rowWidth)-10,
+	numRows = Math.floor(height/rowWidth)-9,
 	wordfalls = new Array(),
 	busyCols = new Array(),
 	busyTimes = new Array();
@@ -13,7 +14,7 @@ var height = document.documentElement.clientHeight, //window.innerHeight,
 
 for (var i=0; i < numCols; ++i) {
 	var col = document.createElement('div');
-	document.body.appendChild(col);
+	container.appendChild(col);
 	col.setAttribute("id", "col" + i);
 	for (var j=0; j < numRows; ++j) {
 		var row = document.createElement('div');
@@ -22,16 +23,20 @@ for (var i=0; i < numCols; ++i) {
 }
 
 /* Like a waterfall, but with words */
-function Wordfall(col) {
+function Wordfall(col, word, maxLength) {
 	this.col = document.getElementById("col"+col);
 	this.head = this.col.firstChild;
 	this.tail = this.head;
 	this.length = 1;
-	this.maxLength = 10;
-	this.shrinking = false;
+	this.maxLength = maxLength;
+	this.word = word;
+
+	var i = 0; 
+	for (var row = this.head; row.nextSibling !== null; row = row.nextSibling) {
+		row.innerHTML = this.word[i++];
+	}
 
 	this.head.classList.add('lighter-green');
-	//console.log("Wordfall of length "+this.length+" created.");
 }
 
 Wordfall.prototype.advance = function() {
@@ -137,47 +142,64 @@ Wordfall.prototype.removeLightGreen = function () {
 }
 
 Wordfall.prototype.removeGreen = function() {
-	if (this.tail === null) {
-		clearInterval(intervalId);
-		console.log(this);
-	}
 	this.tail.classList.remove('green');
 	this.tail = this.tail.nextSibling;
 	if (this.tail === null) {
-		wordfalls.remove(this);
+		wordfalls.removeObject(this);
 	}
 }
 
-Array.prototype.remove = function(object) {
+/* Removes object from Array and shifts array elements to fill missing spot. 
+ * If array contains multiple instances of object, it will remove the first. 
+ */
+Array.prototype.removeObject = function(object) {
 	this.splice(this.indexOf(object), 1);
 }
 
-function run() {
-	var col = Math.floor(Math.random()*numCols), 
-		wordfall;
+/* Removes item at index and shifts array elements to fill missing spot. 
+ */
+Array.prototype.removeIndex = function(index) {
+	this.splice(index, 1);
+}
 
-	if (Math.random() > 0) {
-		while (busyCols.indexOf(col) !== -1) {
-			col = Math.floor(Math.random()*numCols)
-		}
-		wordfall = new Wordfall(col);
-		wordfalls.push(wordfall);
-		busyCols.push(col);
-		busyTimes.push(wordfall.maxLength+1);
+function randomWord() {
+	var wordLength = numRows;
+	var result = "";
+	for (var i = 0; i < wordLength; ++i) {
+		result += String.fromCharCode(0x0019 + Math.random()*(0x0078-0x0021+1));
 	}
-	
+	return result;
+}
 
+function randomColumn() {
+	var col = Math.floor(Math.random()*numCols);
+	while (busyCols.indexOf(col) !== -1) {
+		col = Math.floor(Math.random()*numCols)
+	}
+	return col;
+}
+
+function run() {
 	wordfalls.forEach(function(wordfall, index) {
 		wordfall.advance();
 	});
 
 	busyTimes.forEach(function(time, index) {
 		if (--busyTimes[index] === 0) {
-			busyCols.splice(index, 1);
-			busyTimes.splice(index, 1);
+			busyCols.removeIndex(index);
+			busyTimes.removeIndex(index);
 		}
 	});
-	console.log(busyTimes, busyCols);
+
+	var col = randomColumn(),
+		word = randomWord(),
+		length = Math.floor(Math.random() * (13 - 5 + 1) + 5),
+		wordfall = new Wordfall(col, word, length);
+	wordfalls.push(wordfall);
+	busyCols.push(col);
+	busyTimes.push(wordfall.maxLength+1);
+	
+	//console.log(busyTimes, busyCols);
 }
 
 /*var wordfall = new Wordfall(3);

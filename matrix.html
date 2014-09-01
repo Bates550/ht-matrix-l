@@ -16,17 +16,20 @@
 
 		html {
 			background-color: #000;
-			color: #0F0;
-		}
-
-		body {
-
 		}
 
 		div {
 			height: 16px;
 			width: 16px;
 			display: inline-block;
+			color: #000;
+			font-family: "VT323";
+			font-size: 16px;
+			line-height: 16px;
+		}
+
+		button {
+			float: left;
 		}
 
 		#container {
@@ -36,24 +39,34 @@
 			background-color: #f00;
 			position: relative;
 			z-index: 1;
+			font-family: "VT323";
+			font-size: 14px;
 		}
 
 		.green {
-			background-color: #00C100;
+			//background-color: #00C100;
+			color: #00C100;
+			text-shadow: 0px 0px 3px rgba(0, 153, 0, 1);
 		}
 
 		.light-green {
-			background-color: #00DE2A;
+			//background-color: #00DE2A;
+			color: #00DE2A;
+			text-shadow: 0px 0px 3px rgba(0, 222, 42, 1);
 		}
 
 		.lighter-green {
-			background-color: #00FF47;
+			//background-color: #00ff0c;
+			color: #00FF00;//#00FF0C;
+			text-shadow: 0px 0px 5px rgba(0, 255, 0, 1);
 		}
 	</style>
 </head>
 
-<body>  
-	<!--<button onclick="run()">Advance</button>-->
+<body>
+	<!--<button onclick="run()">Advance</button>
+	<button onclick="clearInterval(intervalId)">Stop</button>
+	<button onclick="intervalId = setInterval(run, 100)">Start</button>-->
 	<!--<section id="container"></section>-->
 	<script src="matrix.js"></script>
 </body>
