@@ -2,11 +2,12 @@
 
 var height = document.documentElement.clientHeight, //window.innerHeight,
 	width = document.documentElement.clientWidth, //window.innerWidth,
-	container = document.body,
+	container = document.getElementById("container"),
 	colWidth = 16,
 	rowWidth = colWidth,
-	numCols = Math.floor(width/colWidth),
-	numRows = Math.floor(height/rowWidth)-9,
+	numCols = Math.floor(width/colWidth)-1,
+	numRows = Math.floor(height/rowWidth)-1, 
+	numSpawn = 1, // Number of Wordfall's to spawn per call to run()
 	wordfalls = new Array(),
 	busyCols = new Array(),
 	busyTimes = new Array();
@@ -190,14 +191,20 @@ function run() {
 			busyTimes.removeIndex(index);
 		}
 	});
+	var col,
+		word,
+		length,
+		wordfall;
 
-	var col = randomColumn(),
-		word = randomWord(),
-		length = Math.floor(Math.random() * (13 - 5 + 1) + 5),
+	for (var i=0; i < numSpawn; i++) {
+		col = randomColumn();
+		word = randomWord();
+		length = Math.floor(Math.random() * (13 - 5 + 1) + 5);
 		wordfall = new Wordfall(col, word, length);
-	wordfalls.push(wordfall);
-	busyCols.push(col);
-	busyTimes.push(wordfall.maxLength+1);
+		wordfalls.push(wordfall);
+		busyCols.push(col);
+		busyTimes.push(wordfall.maxLength+1);
+	}
 	
 	//console.log(busyTimes, busyCols);
 }
