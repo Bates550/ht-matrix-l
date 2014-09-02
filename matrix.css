@@ -1,0 +1,44 @@
+@import url(http://fonts.googleapis.com/css?family=VT323);
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	background-color: #000;
+}
+
+div {
+	width: 16px;
+	display: inline-block;
+}
+
+div div {
+	height: 16px;
+	float: left;
+	color: #000;
+	font-family: "VT323";
+	font-size: 16px;
+	line-height: 16px;
+}
+
+button {
+	float: left;
+}
+
+
+.green {
+	color: #1E8701; 
+	text-shadow: 0px 0px 3px rgba(30, 135, 1, 1); 
+}
+
+.light-green {
+	color: #00DE2A;
+	text-shadow: 0px 0px 3px rgba(0, 222, 42, 1);
+}
+
+.lighter-green {
+	color: #00FF00;
+	text-shadow: 0px 0px 5px rgba(0, 255, 0, 1);
+}
