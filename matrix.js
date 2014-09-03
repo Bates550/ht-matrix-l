@@ -2,30 +2,52 @@
 
 var height = document.documentElement.clientHeight, //window.innerHeight,
 	width = document.documentElement.clientWidth, //window.innerWidth,
-	container = document.getElementById("container"),
-	colWidth = 16,
-	rowWidth = colWidth,
-	numCols = Math.floor(width/colWidth)-1,
-	numRows = Math.floor(height/rowWidth)-1, 
-	numSpawn = 1, // Number of Wordfall's to spawn per call to run()
+	foreground = document.getElementById("foreground"),
+	colWidthFG = 16,
+	rowWidthFG = colWidthFG,
+	numColsFG = Math.floor(width/colWidthFG)-1,
+	numRowsFG = Math.floor(height/rowWidthFG)-1, 
+	numSpawnFG = 1, // Number of Wordfall's to spawn per call to run()
+	background = document.getElementById("background"),
+	colWidthBG = 12,
+	rowWidthBG = colWidthBG,
+	numColsBG = Math.floor(width/colWidthBG)-1,
+	numRowsBG = Math.floor(height/rowWidthBG)-1,
+	numSpawnBG = 1,
 	wordfalls = new Array(),
-	busyCols = new Array(),
-	busyTimes = new Array();
+	busyColsFG = new Array(),
+	busyTimesFG = new Array(),
+	busyColsBG = new Array(),
+	busyTimesBG = new Array();
 
-
-for (var i=0; i < numCols; ++i) {
+// Populate foreground
+for (var i=0; i < numColsFG; ++i) {
 	var col = document.createElement('div');
-	container.appendChild(col);
-	col.setAttribute("id", "col" + i);
-	for (var j=0; j < numRows; ++j) {
+	foreground.appendChild(col);
+	col.setAttribute("id", "colfg" + i);
+	for (var j=0; j < numRowsFG; ++j) {
+		var row = document.createElement('div');
+		col.appendChild(row);
+	}
+}
+
+// Populate background
+for (var i = 0; i < numColsBG; ++i) {
+	var col = document.createElement('div');
+	background.appendChild(col);
+	col.setAttribute("id", "colbg" + i);	
+	for (var j=0; j < numRowsBG; ++j) {
 		var row = document.createElement('div');
 		col.appendChild(row);
 	}
 }
 
 /* Like a waterfall, but with words */
-function Wordfall(col, word, maxLength) {
-	this.col = document.getElementById("col"+col);
+function Wordfall(col, word, maxLength, depth) {
+	if (depth != 'fg' && depth != 'bg') {
+		console.log("Invalid depth value:", depth);
+	}
+	this.col = document.getElementById("col"+depth+col);
 	this.head = this.col.firstChild;
 	this.tail = this.head;
 	this.length = 1;
@@ -163,17 +185,43 @@ Array.prototype.removeIndex = function(index) {
 	this.splice(index, 1);
 }
 
-function randomWord() {
-	var wordLength = numRows;
-	var result = "";
+function randomWord(depth) {
+	var wordLength,
+		result = "";
+	depth = depth.toLowerCase();
+	if (depth == 'fg') {
+		wordLength = numRowsFG;
+	}
+	else if (depth == 'bg') {
+		wordLength = numRowsBG;
+	}
+	else {
+		console.log("Invalide depth value:", depth);
+		clearInterval(intervalId);
+	}
 	for (var i = 0; i < wordLength; ++i) {
 		result += String.fromCharCode(0x0019 + Math.random()*(0x0078-0x0021+1));
 	}
 	return result;
 }
 
-function randomColumn() {
-	var col = Math.floor(Math.random()*numCols);
+function randomColumn(depth) {
+	var numCols,
+		busyCols,
+		col;
+	if (depth == 'fg') {
+		numCols = numColsFG;
+		busyCols = busyColsFG;
+	}
+	else if (depth == 'bg') {
+		numCols = numColsBG;
+		busyCols = busyColsBG;
+	}
+	else {
+		console.log("Invalide depth value:", depth);
+	}
+
+	col = Math.floor(Math.random()*numCols);
 	while (busyCols.indexOf(col) !== -1) {
 		col = Math.floor(Math.random()*numCols)
 	}
@@ -185,10 +233,16 @@ function run() {
 		wordfall.advance();
 	});
 
-	busyTimes.forEach(function(time, index) {
-		if (--busyTimes[index] === 0) {
-			busyCols.removeIndex(index);
-			busyTimes.removeIndex(index);
+	busyTimesFG.forEach(function(time, index) {
+		if (--busyTimesFG[index] === 0) {
+			busyColsFG.removeIndex(index);
+			busyTimesFG.removeIndex(index);
+		}
+	});
+	busyTimesBG.forEach(function(time, index) {
+		if (--busyTimesBG[index] === 0) {
+			busyColsBG.removeIndex(index);
+			busyTimesBG.removeIndex(index);
 		}
 	});
 	var col,
@@ -196,22 +250,29 @@ function run() {
 		length,
 		wordfall;
 
-	for (var i=0; i < numSpawn; i++) {
-		col = randomColumn();
-		word = randomWord();
+	for (var i=0; i < numSpawnFG; ++i) {
+		col = randomColumn('fg');
+		word = randomWord('fg');
 		length = Math.floor(Math.random() * (13 - 5 + 1) + 5);
-		wordfall = new Wordfall(col, word, length);
+		wordfall = new Wordfall(col, word, length, 'fg');
 		wordfalls.push(wordfall);
-		busyCols.push(col);
-		busyTimes.push(wordfall.maxLength+1);
+		busyColsFG.push(col);
+		busyTimesFG.push(wordfall.maxLength+1);
 	}
 	
-	//console.log(busyTimes, busyCols);
+	if (Math.random() > 0.5) {
+		for (var i=0; i < numSpawnBG; ++i) {
+			col = randomColumn('bg');
+			word = randomWord('bg');
+			length = Math.floor(Math.random() * (13 - 5 + 1) + 5);
+			wordfall = new Wordfall(col, word, length, 'bg');
+			wordfalls.push(wordfall);
+			busyColsBG.push(col);
+			busyTimesBG.push(wordfall.maxLength+1);
+		}
+	}
 }
 
-/*var wordfall = new Wordfall(3);
-wordfalls.push(wordfall);
-busyCols.push(3);
-busyTimes.push(wordfall.maxLength+1);
-*/
-var intervalId = setInterval(run, 100);
+
+var intervalId = setInterval(run, 75);
+//run();

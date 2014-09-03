@@ -9,7 +9,7 @@ html {
 	background-color: #000;
 }
 
-div {
+/*div {
 	width: 16px;
 	display: inline-block;
 }
@@ -22,23 +22,85 @@ div div {
 	font-size: 16px;
 	line-height: 16px;
 }
+*/
+div {
+	display: inline-block;
+}
+
+div div {
+	font-family: "VT323";
+	float: left;
+}
+
+#container {
+	position: relative;
+}
+
+#container section {
+	position: absolute;
+}
+
+#foreground {
+	z-index: 1;
+}
+
+#foreground div {
+	width: 16px;
+}
+
+#foreground div div {
+	color: #000;
+	height: 16px;
+	font-size: 16px;
+	line-height: 16px;
+}
+
+#background {
+	z-index: 0;
+	margin: 0px 5px;
+}
+
+#background div {
+	width: 12px;
+}
+
+#background div div {
+	color: #000;
+	height: 12px;
+	font-size: 12px;
+	line-height: 12px;
+}
 
 button {
 	float: left;
 }
 
-
-.green {
+#foreground .green {
 	color: #1E8701; 
 	text-shadow: 0px 0px 3px rgba(30, 135, 1, 1); 
 }
 
-.light-green {
+#foreground .light-green {
 	color: #00DE2A;
 	text-shadow: 0px 0px 3px rgba(0, 222, 42, 1);
 }
 
-.lighter-green {
+#foreground .lighter-green {
 	color: #00FF00;
 	text-shadow: 0px 0px 5px rgba(0, 255, 0, 1);
+}
+
+#background .green {
+	color: #8A3030; 
+	text-shadow: 0px 0px 3px rgba(138, 48, 48, 1); 
+}
+
+#background .light-green {
+	color: #A31717;
+	text-shadow: 0px 0px 3px rgba(163, 23, 23, 1);
+}
+
+#background .lighter-green {
+	color: #FF0000;
+	text-shadow: 0px 0px 5px rgba(255, 0, 0, 1);
 }
