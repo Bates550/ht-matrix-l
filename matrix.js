@@ -8,12 +8,14 @@ var height = document.documentElement.clientHeight, //window.innerHeight,
 	numColsFG = Math.floor(width/colWidthFG)-1,
 	numRowsFG = Math.floor(height/rowWidthFG)-1, 
 	numSpawnFG = 1, // Number of Wordfall's to spawn per call to run()
+	spawnChanceFG = 0.66,
 	background = document.getElementById("background"),
 	colWidthBG = 12,
 	rowWidthBG = colWidthBG,
 	numColsBG = Math.floor(width/colWidthBG)-1,
 	numRowsBG = Math.floor(height/rowWidthBG)-1,
 	numSpawnBG = 1,
+	spawnChanceBG = 0.66,
 	wordfalls = new Array(),
 	busyColsFG = new Array(),
 	busyTimesFG = new Array(),
@@ -250,17 +252,19 @@ function run() {
 		length,
 		wordfall;
 
-	for (var i=0; i < numSpawnFG; ++i) {
-		col = randomColumn('fg');
-		word = randomWord('fg');
-		length = Math.floor(Math.random() * (13 - 5 + 1) + 5);
-		wordfall = new Wordfall(col, word, length, 'fg');
-		wordfalls.push(wordfall);
-		busyColsFG.push(col);
-		busyTimesFG.push(wordfall.maxLength+1);
+	if (Math.random() < spawnChanceFG) {
+		for (var i=0; i < numSpawnFG; ++i) {
+			col = randomColumn('fg');
+			word = randomWord('fg');
+			length = Math.floor(Math.random() * (13 - 5 + 1) + 5);
+			wordfall = new Wordfall(col, word, length, 'fg');
+			wordfalls.push(wordfall);
+			busyColsFG.push(col);
+			busyTimesFG.push(wordfall.maxLength+1);
+		}
 	}
-	
-	if (Math.random() > 0.5) {
+
+	if (Math.random() < spawnChanceBG) {
 		for (var i=0; i < numSpawnBG; ++i) {
 			col = randomColumn('bg');
 			word = randomWord('bg');
