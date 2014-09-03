@@ -76,13 +76,13 @@ button {
 }
 
 #foreground .green {
-	color: #1E8701; 
-	text-shadow: 0px 0px 3px rgba(30, 135, 1, 1); 
+	color: #4fc130; 
+	text-shadow: 0px 0px 3px rgba(0, 255, 0, 1);
 }
 
 #foreground .light-green {
-	color: #00DE2A;
-	text-shadow: 0px 0px 3px rgba(0, 222, 42, 1);
+	color: #14e414;
+	text-shadow: 0px 0px 3px rgba(0, 255, 0, 1);
 }
 
 #foreground .lighter-green {
@@ -91,16 +91,16 @@ button {
 }
 
 #background .green {
-	color: #8A3030; 
-	text-shadow: 0px 0px 3px rgba(138, 48, 48, 1); 
+	color: #419D27; 
+	text-shadow: 0px 0px 1px rgba(0, 255, 0, 1);
 }
 
 #background .light-green {
-	color: #A31717;
-	text-shadow: 0px 0px 3px rgba(163, 23, 23, 1);
+	color: #00c600;
+	text-shadow: 0px 0px 1px rgba(0, 255, 0, 1);
 }
 
 #background .lighter-green {
-	color: #FF0000;
-	text-shadow: 0px 0px 5px rgba(255, 0, 0, 1);
+	color: #00e100;
+	text-shadow: 0px 0px 3px rgba(0, 255, 0, 1);
 }
