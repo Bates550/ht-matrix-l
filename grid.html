@@ -1,0 +1,79 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>The Grid</title>
+
+	<style>
+		@import url(http://fonts.googleapis.com/css?family=VT323);
+
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		html {
+			background-color: #000;
+		}
+
+		div {
+			display: inline-block;
+		}
+
+		div div {
+			font-family: "VT323";
+			float: left;
+		}
+
+		#container {
+			position: relative;
+		}
+
+		#container section {
+			position: absolute;
+		}
+
+		#foreground {
+			z-index: 1;
+		}
+
+		#foreground div {
+			width: 16px;
+		}
+
+		#foreground div div {
+			color: #F00;
+			height: 16px;
+			font-size: 16px;
+			line-height: 16px;
+		}
+
+		#background {
+			z-index: 0;
+			margin: 0px 5px;
+		}
+
+		#background div {
+			width: 12px;
+		}
+
+		#background div div {
+			color: #0F0;
+			height: 12px;
+			font-size: 12px;
+			line-height: 12px;
+		}
+
+	</style>
+</head>
+
+<body>
+	<section id="container">
+		<section id="background"></section>
+		<section id="foreground"></section>
+	</section>
+	<script src="grid.js"></script>
+</body>
+</html>

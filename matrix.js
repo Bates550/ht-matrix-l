@@ -7,7 +7,7 @@ var height = document.documentElement.clientHeight, //window.innerHeight,
 	rowWidthFG = colWidthFG,
 	numColsFG = Math.floor(width/colWidthFG)-1,
 	numRowsFG = Math.floor(height/rowWidthFG)-1, 
-	numSpawnFG = 1, // Number of Wordfall's to spawn per call to run()
+	numSpawnFG = 2, // Number of Wordfall's to spawn per call to run()
 	spawnChanceFG = 0.66,
 	background = document.getElementById("background"),
 	colWidthBG = 12,
@@ -21,6 +21,7 @@ var height = document.documentElement.clientHeight, //window.innerHeight,
 	busyTimesFG = new Array(),
 	busyColsBG = new Array(),
 	busyTimesBG = new Array();
+var DEBUG = false;
 
 // Populate foreground
 for (var i=0; i < numColsFG; ++i) {
@@ -55,9 +56,10 @@ function Wordfall(col, word, maxLength, depth) {
 	this.length = 1;
 	this.maxLength = maxLength;
 	this.word = word;
+	this.stepsTaken = [];
 
 	var i = 0; 
-	for (var row = this.head; row.nextSibling !== null; row = row.nextSibling) {
+	for (var row = this.head; row !== null; row = row.nextSibling) {
 		row.innerHTML = this.word[i++];
 	}
 
@@ -65,35 +67,53 @@ function Wordfall(col, word, maxLength, depth) {
 }
 
 Wordfall.prototype.advance = function() {
+	var step = "none";
+	console.assert(this.length <= this.maxLength);
+	console.assert(this.head !== null && this.tail !== null);
+	if (this.head === null || this.tail === null) {
+		clearInterval(intervalId);
+		console.log(this, wordfalls);
+	}
 	if (this.length < this.maxLength) {
 		if (this.length === 1) {
 			//console.log("Adding one light green segment.");
+			step = "addLightGreen";
 			this.addLightGreen();
 		}
 		else if (this.length === 2) {
 			//console.log("Adding one green segment.");
+			step = "addGreen";
 			this.addGreen();
 		}
 		else {
 			//console.log("Growing longer.");
+			step = "growLonger";
 			this.growLonger();
 		}
 	}
 	else if (this.head.nextSibling !== null) {
 		//console.log("Moving forward.");
+		step = "moveForward";
 		this.moveForward();
 	}
 	else if (this.head.classList.contains('lighter-green')) {
 		//console.log("Removing one lighter green segment.");
+		step = "removeLighterGreen";
 		this.removeLighterGreen();
 	}
 	else if (this.head.classList.contains('light-green')) {
 		//console.log("Removing one light green segment.");
+		step = "removeLightGreen";
 		this.removeLightGreen();
 	}
 	else if (this.head.classList.contains('green')) {
 		//console.log("Removing one green segment.");
+		step = "removeGreen";
 		this.removeGreen();
+	}
+	this.stepsTaken.unshift(step);
+	if (this.stepsTaken.length >= 14) {
+		this.stepsTaken.pop();
 	}
 }
 
@@ -167,11 +187,25 @@ Wordfall.prototype.removeLightGreen = function () {
 }
 
 Wordfall.prototype.removeGreen = function() {
+	if (this.tail === null) {
+		console.log(this);
+		clearInterval(intervalId);
+	}
 	this.tail.classList.remove('green');
+	if (this.tail == this.head) {
+		wordfalls.removeObject(this);
+	}
+	else {
+		if (this.tail.nextSibling === null) {
+			console.log(this);
+			clearInterval(intervalId);
+		}
+		this.tail = this.tail.nextSibling;
+	}/*
 	this.tail = this.tail.nextSibling;
 	if (this.tail === null) {
 		wordfalls.removeObject(this);
-	}
+	}*/
 }
 
 /* Removes object from Array and shifts array elements to fill missing spot. 
@@ -220,7 +254,7 @@ function randomColumn(depth) {
 		busyCols = busyColsBG;
 	}
 	else {
-		console.log("Invalide depth value:", depth);
+		console.log("Invalid depth value:", depth);
 	}
 
 	col = Math.floor(Math.random()*numCols);
@@ -230,53 +264,72 @@ function randomColumn(depth) {
 	return col;
 }
 
+if (DEBUG) {
+	var wordfall = new Wordfall(2, randomWord('fg'), 10, 'fg');
+	wordfalls.push(wordfall);
+}
+
 function run() {
+	//try {
 	wordfalls.forEach(function(wordfall, index) {
 		wordfall.advance();
 	});
 
-	busyTimesFG.forEach(function(time, index) {
-		if (--busyTimesFG[index] === 0) {
-			busyColsFG.removeIndex(index);
-			busyTimesFG.removeIndex(index);
-		}
-	});
-	busyTimesBG.forEach(function(time, index) {
-		if (--busyTimesBG[index] === 0) {
-			busyColsBG.removeIndex(index);
-			busyTimesBG.removeIndex(index);
-		}
-	});
-	var col,
-		word,
-		length,
-		wordfall;
-
-	if (Math.random() < spawnChanceFG) {
-		for (var i=0; i < numSpawnFG; ++i) {
-			col = randomColumn('fg');
-			word = randomWord('fg');
-			length = Math.floor(Math.random() * (13 - 5 + 1) + 5);
-			wordfall = new Wordfall(col, word, length, 'fg');
-			wordfalls.push(wordfall);
-			busyColsFG.push(col);
-			busyTimesFG.push(wordfall.maxLength+1);
-		}
+	if (DEBUG) {
+		console.log(wordfall);
 	}
+	else {
+		busyTimesFG.forEach(function(time, index) {
+			if (--busyTimesFG[index] === 0) {
+				busyColsFG.removeIndex(index);
+				busyTimesFG.removeIndex(index);
+			}
+		});
+		busyTimesBG.forEach(function(time, index) {
+			if (--busyTimesBG[index] === 0) {
+				busyColsBG.removeIndex(index);
+				busyTimesBG.removeIndex(index);
+			}
+		});
+		var col,
+			word,
+			length,
+			wordfall;
 
-	if (Math.random() < spawnChanceBG) {
-		for (var i=0; i < numSpawnBG; ++i) {
-			col = randomColumn('bg');
-			word = randomWord('bg');
-			length = Math.floor(Math.random() * (13 - 5 + 1) + 5);
-			wordfall = new Wordfall(col, word, length, 'bg');
-			wordfalls.push(wordfall);
-			busyColsBG.push(col);
-			busyTimesBG.push(wordfall.maxLength+1);
+		if (Math.random() < spawnChanceFG) {
+
+			for (var i=0; i < numSpawnFG; ++i) {
+				col = randomColumn('fg');
+				word = randomWord('fg');
+				length = Math.floor(Math.random() * (Math.min(numRowsFG, 13) - 5 + 1) + 5);
+				wordfall = new Wordfall(col, word, length, 'fg');
+				wordfalls.push(wordfall);
+				busyColsFG.push(col);
+				busyTimesFG.push(wordfall.maxLength+1);
+			}
 		}
+		/*
+		if (Math.random() < spawnChanceBG) {
+			for (var i=0; i < numSpawnBG; ++i) {
+				col = randomColumn('bg');
+				word = randomWord('bg');
+				length = Math.floor(Math.random() * (Math.min(numRowsBG,13) - 5 + 1) + 5);
+				wordfall = new Wordfall(col, word, length, 'bg');
+				wordfalls.push(wordfall);
+				busyColsBG.push(col);
+				busyTimesBG.push(wordfall.maxLength+1);
+			}
+		}
+		*/
 	}
+	//}
+	//catch(TypeError) {
+	//	clearInterval(intervalId);
+	//	console.log();
+	//}
 }
 
-
-var intervalId = setInterval(run, 75);
-//run();
+var intervalId;
+if (!DEBUG) {
+	intervalId = setInterval(run, 75);
+}
