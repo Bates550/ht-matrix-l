@@ -308,7 +308,7 @@ function run() {
 				busyTimesFG.push(wordfall.maxLength+1);
 			}
 		}
-		/*
+		
 		if (Math.random() < spawnChanceBG) {
 			for (var i=0; i < numSpawnBG; ++i) {
 				col = randomColumn('bg');
@@ -320,7 +320,6 @@ function run() {
 				busyTimesBG.push(wordfall.maxLength+1);
 			}
 		}
-		*/
 	}
 	//}
 	//catch(TypeError) {
